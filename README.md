@@ -6,7 +6,7 @@
 
 - 流式响应与多轮上下文管理
 - RAG 检索增强与引用来源展示
-- Function Calling 风格工具调用链路
+- 基于标准 `MCP (Model Context Protocol)` + Function Calling 实现工具调用链路
 - 语音输入与长会话性能优化
 
 项目适合作为以下场景的参考实现：
@@ -38,9 +38,9 @@
 
 ### Tool Calling
 
-- 基于 Function Calling 风格抽象工具调用协议
-- 已打通「模型决策 → 参数解析 → 工具执行 → 结果回填」链路
-- 前端可视化展示工具调用参数、执行状态与结果
+- 基于标准 `MCP (Model Context Protocol)` 暴露工具能力
+- 服务端通过 MCP Client 连接独立 MCP Server，并将工具能力映射给模型
+- 已打通「模型决策 → MCP 工具调用 → 结果回填 → 前端状态可视化」链路
 
 ### Voice Input
 
@@ -71,6 +71,8 @@
 - `Express`
 - `Multer`
 - `dotenv`
+- `@modelcontextprotocol/sdk`
+- `zod`
 - `Qwen Compatible API`
 
 ## Built-in Tools
@@ -85,7 +87,7 @@
 
 ```text
 .
-├── server/                 # Express 服务、Qwen 接口、RAG 与工具调用逻辑
+├── server/                 # Express 编排层、MCP Server 与 Qwen 对话逻辑
 ├── src/
 │   ├── components/         # 页面与业务组件
 │   ├── composables/        # 组合式 Hooks
@@ -163,11 +165,12 @@ npm run build
 
 ### Tool Calling Flow
 
-1. 模型决定是否触发工具调用
-2. 服务端解析 `tool_calls`
-3. 执行对应工具逻辑
-4. 通过 SSE 回传工具状态与结果
-5. 前端展示调用参数、执行状态与返回内容
+1. 服务端启动并连接独立的 MCP Server
+2. 通过 MCP Client 获取工具定义并映射给模型
+3. 模型决定是否触发工具调用
+4. 服务端通过 MCP Client 执行对应工具
+5. 工具结果一方面回填给模型继续推理，另一方面通过 SSE 回传前端
+6. 前端展示调用参数、执行状态与返回内容
 
 ## Notes
 
