@@ -322,7 +322,7 @@ export const useChatStore = defineStore('chat', () => {
     isResponding.value = true;
     touchActiveSession();
 
-    const assistantMessage: ChatMessage = {
+    const assistantMessageDraft: ChatMessage = {
       id: uid('assistant'),
       role: 'assistant',
       content: '',
@@ -332,7 +332,8 @@ export const useChatStore = defineStore('chat', () => {
       tools: []
     };
 
-    activeSession.value.messages.push(assistantMessage);
+    activeSession.value.messages.push(assistantMessageDraft);
+    const assistantMessage = activeSession.value.messages[activeSession.value.messages.length - 1] as ChatMessage;
     touchActiveSession();
 
     const controller = new AbortController();
